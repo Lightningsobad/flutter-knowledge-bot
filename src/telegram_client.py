@@ -15,9 +15,14 @@ def format_telegram_message(selection: dict[str, dict[str, Any] | None]) -> str:
         escaped_group = html.escape(group)
         lines.append(f"🔹 <b>{escaped_group}:</b>")
         if item:
-            escaped_title = html.escape(item.get("title", "Untitled"))
-            url = item.get("url", "")
-            lines.append(f'• <a href="{url}">{escaped_title}</a>')
+            title = item.get("title") or "Untitled"
+            escaped_title = html.escape(title)
+            raw_url = (item.get("url") or "").strip()
+            if raw_url:
+                escaped_url = html.escape(raw_url, quote=True)
+                lines.append(f'• <a href="{escaped_url}">{escaped_title}</a>')
+            else:
+                lines.append(f"• {escaped_title}")
         else:
             lines.append("• <i>(Tạm thời hết bài mới)</i>")
         lines.append("")

@@ -51,12 +51,19 @@ def run_daily_job(env: Mapping[str, str] | None = None) -> int:
     logger.info("Telegram message delivered successfully.")
 
     # Update Notion status to 'Ôn Tập' for each selected topic
+    all_updated = True
     for group, item in selection.items():
         if item and item.get("id"):
             page_id = item["id"]
             title = item.get("title", "")
             logger.info(f"Updating Notion status for page: {title} ({page_id}) -> 'Ôn Tập'")
-            update_page_status(page_id, "Ôn Tập", notion_token)
+            if not update_page_status(page_id, "Ôn Tập", notion_token):
+                logger.error(f"Failed to update page {page_id} status in Notion.")
+                all_updated = False
+
+    if not all_updated:
+        logger.warning("One or more pages failed to update status in Notion.")
+        return 1
 
     logger.info("Daily job finished successfully.")
     return 0

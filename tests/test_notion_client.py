@@ -1,4 +1,5 @@
 import pytest
+import requests
 import requests_mock
 from src.notion_client import fetch_done_pages, update_page_status
 
@@ -79,6 +80,18 @@ def test_update_page_status_failure_returns_false():
             f"https://api.notion.com/v1/pages/{page_id}",
             status_code=403,
             json={"message": "Forbidden"},
+        )
+        success = update_page_status(page_id, "Ôn Tập", token)
+        assert success is False
+
+def test_update_page_status_network_exception_returns_false():
+    page_id = "page-123"
+    token = "secret-token"
+
+    with requests_mock.Mocker() as m:
+        m.patch(
+            f"https://api.notion.com/v1/pages/{page_id}",
+            exc=requests.exceptions.ConnectionError("Network connection reset"),
         )
         success = update_page_status(page_id, "Ôn Tập", token)
         assert success is False

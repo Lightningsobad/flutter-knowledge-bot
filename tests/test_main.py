@@ -60,3 +60,30 @@ def test_run_daily_job_telegram_failure_does_not_update_notion():
         assert code == 1
         mock_send.assert_called_once()
         mock_update.assert_not_called()
+
+
+def test_run_daily_job_notion_update_failure_returns_1():
+    env = {
+        "NOTION_TOKEN": "mock-notion-token",
+        "NOTION_DATABASE_ID": "mock-db-id",
+        "TELEGRAM_BOT_TOKEN": "mock-tg-token",
+        "TELEGRAM_CHAT_ID": "mock-chat-id",
+    }
+    mock_pages = [
+        {
+            "id": "p1",
+            "url": "https://notion.so/p1",
+            "properties": {
+                "Name": {"title": [{"plain_text": "Flutter Topic"}]},
+                "Nhóm kiến thức": {"select": {"name": "1. Kiến thức Flutter"}},
+            }
+        }
+    ]
+
+    with patch("main.fetch_done_pages", return_value=mock_pages), \
+         patch("main.send_telegram_message", return_value=True), \
+         patch("main.update_page_status", return_value=False) as mock_update:
+
+        code = run_daily_job(env=env)
+        assert code == 1
+        mock_update.assert_called_once_with("p1", "Ôn Tập", "mock-notion-token")

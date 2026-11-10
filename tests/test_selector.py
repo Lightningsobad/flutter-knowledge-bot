@@ -95,3 +95,24 @@ def test_select_topics_per_group_empty_group():
     assert selection["1. Kiến thức Flutter"]["id"] == "p1"
     assert selection["2. Kiến thức hệ thống"] is None
     assert selection["3. Thư viện bên thứ ba"] is None
+
+
+def test_extract_page_info_with_none_values():
+    page1 = {"id": None, "url": None, "properties": None}
+    info1 = extract_page_info(page1)
+    assert info1["id"] == ""
+    assert info1["title"] == "Untitled"
+    assert info1["url"] == "https://notion.so/"
+    assert info1["group"] is None
+
+    page2 = {
+        "id": "p2",
+        "properties": {
+            "Name": {"title": None},
+            "Nhóm kiến thức": None,
+        }
+    }
+    info2 = extract_page_info(page2)
+    assert info2["id"] == "p2"
+    assert info2["title"] == "Untitled"
+    assert info2["group"] is None

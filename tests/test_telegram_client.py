@@ -69,3 +69,14 @@ def test_send_telegram_message_failure():
         )
         success = send_telegram_message(bot_token, chat_id, text)
         assert success is False
+
+
+def test_format_telegram_message_with_none_title_and_url():
+    selection = {
+        "1. Kiến thức Flutter": {
+            "title": None,
+            "url": None,
+        }
+    }
+    message = format_telegram_message(selection)
+    assert "Untitled" in message
